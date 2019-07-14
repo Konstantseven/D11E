@@ -84,17 +84,7 @@ LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
-//		case WM_CHAR: {
-//			unsigned char letter = static_cast<unsigned char>(wParam);
-//			return 0;
-//		}
-//		case WM_KEYDOWN:{
-//			unsigned char keycode = static_cast<unsigned char>(wParam);
-//			return 0;
-//		}
 		case WM_NCCREATE: {
-			OutputDebugStringA("The window was created.\n");
-
 			const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
 			WindowContainer* pWindow = reinterpret_cast<WindowContainer*>(pCreate->lpCreateParams);
 
@@ -107,7 +97,6 @@ LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 			SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(HandleMsgRedirect));
 
 			return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
-			//return DefWindowProc(hwnd, uMsg, wParam, lParam);
 		}
 		default: {
 			return DefWindowProc(hwnd, uMsg, wParam, lParam);

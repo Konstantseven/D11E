@@ -7,3 +7,13 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string windowTitle, std::strin
 bool Engine::ProcessMessages() {
 	return this->renderWindow.ProcessMessages();
 }
+
+void Engine::Update() {
+	while (!keyboard.CharBufferIsEmpty()) {
+		unsigned char _char = keyboard.ReadChar();
+	}
+	while (!keyboard.KeyBufferIsEmpty()) {
+		KeyboardEvent kEvent = keyboard.ReadKey();
+		unsigned char _char = kEvent.GetKeyCode();
+	}
+}

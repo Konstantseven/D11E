@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include "StringConverter.h"
+
 class ErrorLogger
 {
 public:	
