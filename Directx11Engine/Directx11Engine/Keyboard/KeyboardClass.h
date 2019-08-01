@@ -20,9 +20,7 @@ public:
 	void DisableAutoRepeatChars();
 	bool IsKeysAutoRepeat();
 	bool IsCharAutoRepeat();
-
-
-
+	
 private:
 	bool autoRepeatKeys = false;
 	bool autoRepeatChars = false;

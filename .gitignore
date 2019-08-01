@@ -1,0 +1,10 @@
+/.vs
+/Debug
+/Release
+/x64
+/Directx11Engine/Debug
+/Directx11Engine/Release
+/Directx11Engine/x64
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
