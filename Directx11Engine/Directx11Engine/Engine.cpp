@@ -12,8 +12,13 @@ void Engine::Update() {
 	while (!keyboard.CharBufferIsEmpty()) {
 		unsigned char _char = keyboard.ReadChar();
 	}
+
 	while (!keyboard.KeyBufferIsEmpty()) {
 		KeyboardEvent kEvent = keyboard.ReadKey();
 		unsigned char _char = kEvent.GetKeyCode();
+	}
+
+	while (!mouse.EventBufferIsEmpty()) {
+		MouseEvent mEvent = mouse.ReadEvent();
 	}
 }

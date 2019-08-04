@@ -15,7 +15,7 @@ int APIENTRY wWinMain( _In_ 	HINSTANCE hInstance,
 	engine->Initialize(hInstance, "EngineWindow", "MyWindowClass", WIDTH, HEIGHT);
 	
 	while (engine->ProcessMessages()) {
-		engine->Update;
+		engine->Update();
 	}
 
 	return 0;
