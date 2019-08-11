@@ -6,9 +6,9 @@ class KeyboardClass
 {
 public:
 	KeyboardClass();
-	bool KeyIsPressed(const unsigned char keycode);
-	bool KeyBufferIsEmpty();
-	bool CharBufferIsEmpty();
+	bool KeyIsPressed(const unsigned char keycode) const;
+	bool KeyBufferIsEmpty() const;
+	bool CharBufferIsEmpty() const;
 	KeyboardEvent ReadKey();
 	unsigned char ReadChar();
 	void OnKeyPressed(const unsigned char key);
@@ -18,8 +18,8 @@ public:
 	void DisableAutoRepeatKeys();
 	void EnableAutoRepeatChars();
 	void DisableAutoRepeatChars();
-	bool IsKeysAutoRepeat();
-	bool IsCharAutoRepeat();
+	bool IsKeysAutoRepeat() const;
+	bool IsCharAutoRepeat() const;
 	
 private:
 	bool autoRepeatKeys = false;

@@ -1,8 +1,5 @@
 #include "Engine.h"
 
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "DirectXTK.lib")
-
 #define WIDTH 800
 #define HEIGHT 600
 
@@ -12,10 +9,11 @@ int APIENTRY wWinMain( _In_ 	HINSTANCE hInstance,
 	                   _In_ 	int       nCmdShow ) {
 	Engine* engine = new Engine;
 
-	engine->Initialize(hInstance, "EngineWindow", "MyWindowClass", WIDTH, HEIGHT);
+	engine->Initialize(hInstance, "D11 Engine Window", "D11EWindowClass", WIDTH, HEIGHT);
 	
 	while (engine->ProcessMessages()) {
 		engine->Update();
+		engine->RenderFrame();
 	}
 
 	return 0;

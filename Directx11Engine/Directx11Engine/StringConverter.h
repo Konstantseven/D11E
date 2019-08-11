@@ -3,6 +3,7 @@
 
 class StringConverter
 {
+	StringConverter() = delete;
 public:
 	static std::wstring StringToWide(std::string _string);
 };

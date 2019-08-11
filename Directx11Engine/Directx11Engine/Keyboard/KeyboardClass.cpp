@@ -6,15 +6,15 @@ KeyboardClass::KeyboardClass() {
 	}
 }
 
-bool KeyboardClass::KeyIsPressed(const unsigned char keycode) {
+bool KeyboardClass::KeyIsPressed(const unsigned char keycode) const {
 	return this->keyStates[keycode];
 }
 
-bool KeyboardClass::KeyBufferIsEmpty() {
+bool KeyboardClass::KeyBufferIsEmpty() const {
 	return this->keyBuffer.empty();
 }
 
-bool KeyboardClass::CharBufferIsEmpty() {
+bool KeyboardClass::CharBufferIsEmpty() const {
 	return this->charBuffer.empty();
 }
 
@@ -70,10 +70,10 @@ void KeyboardClass::DisableAutoRepeatChars() {
 	this->autoRepeatChars = false;
 }
 
-bool KeyboardClass::IsKeysAutoRepeat() {
+bool KeyboardClass::IsKeysAutoRepeat() const {
 	return this->autoRepeatKeys;
 }
 
-bool KeyboardClass::IsCharAutoRepeat() {
+bool KeyboardClass::IsCharAutoRepeat() const {
 	return this->autoRepeatChars;
 }
