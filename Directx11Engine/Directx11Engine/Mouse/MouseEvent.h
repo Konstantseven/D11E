@@ -1,4 +1,5 @@
 #pragma once
+
 struct MousePoint
 {
 	int x;
@@ -28,7 +29,7 @@ private:
 	int y;
 public:
 	MouseEvent();
-	MouseEvent(const EventType type, const int x, const int y);
+	explicit MouseEvent(const EventType type, const int x, const int y);
 	bool IsValid() const;
 	EventType GetType() const;
 	MousePoint GetPos() const;

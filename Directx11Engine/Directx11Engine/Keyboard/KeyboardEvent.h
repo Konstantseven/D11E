@@ -11,7 +11,7 @@ public:
 	};
 
 	KeyboardEvent();
-	KeyboardEvent(const EventType type, const unsigned char key);
+	explicit KeyboardEvent(const EventType type, const unsigned char key);
 	bool IsPress() const;
 	bool IsRelease() const;
 	bool IsValid() const;
