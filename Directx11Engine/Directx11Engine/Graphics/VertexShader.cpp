@@ -1,4 +1,4 @@
-#include "Shader.h"
+#include "VertexShader.h"
 
 bool VertexShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, std::wstring shaderPath, D3D11_INPUT_ELEMENT_DESC* layoutDescription, UINT numOfElements) {
 	HRESULT hResult = D3DReadFileToBlob(shaderPath.c_str(), this->shaderBuffer.GetAddressOf());

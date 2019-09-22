@@ -72,6 +72,17 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int heigth) {
 
 	this->deviceContext->OMSetRenderTargets(1, this->renderTargetWiew.GetAddressOf(), NULL);
 
+	D3D11_VIEWPORT viewport;
+
+	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Width    = width;
+	viewport.Height   = heigth;
+
+	this->deviceContext->RSSetViewports(1, &viewport);
+
 	return true;
 }
 
@@ -108,6 +119,10 @@ bool Graphics::InitializeShaders() {
 	UINT numOfElements = ARRAYSIZE(layout);
 
 	if (!this->vertexShader.Initialize(this->device, shaderFolder + L"VertexShader.cso", layout, numOfElements)) {
+		return false;
+	}
+
+	if (this->pixelShader.Initialize(this->device, shaderFolder + L"PixelShader.cso")) {
 		return false;
 	}
 

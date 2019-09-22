@@ -1,7 +1,9 @@
 #pragma once
 
 #include "VideoAdapterReader.h"
-#include "Shader.h"
+#include "VertexShader.h"
+#include "PixelShader.h"
+
 
 class Graphics 
 {
@@ -16,5 +18,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetWiew;
+
 	VertexShader vertexShader;
+	PixelShader pixelShader;
 };
