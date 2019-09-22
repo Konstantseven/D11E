@@ -31,6 +31,6 @@ ID3D10Blob* VertexShader::GetBuffer() const {
 	return this->shaderBuffer.Get();
 }
 
-ID3D11InputLayout* VertexShader::getInputLayout() const {
+ID3D11InputLayout* VertexShader::GetInputLayout() const {
 	return this->inputLayout.Get();
 }

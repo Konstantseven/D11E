@@ -12,7 +12,7 @@ public:
 	bool Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, std::wstring shaderPath, D3D11_INPUT_ELEMENT_DESC* layoutDescription, UINT numOfElements);
 	ID3D11VertexShader* GetShader() const;
 	ID3D10Blob* GetBuffer() const;
-	ID3D11InputLayout* getInputLayout() const;
+	ID3D11InputLayout* GetInputLayout() const;
 private:
 	Microsoft::WRL::ComPtr<ID3D10Blob> shaderBuffer;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> shader;

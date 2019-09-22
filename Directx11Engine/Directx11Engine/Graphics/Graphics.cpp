@@ -8,6 +8,10 @@ bool Graphics::Initialize(HWND hwnd, int width, int heigth) {
 	if (!InitializeShaders()) {
 		return false;
 	}
+
+	if (!InitializeScene()) {
+		return false;
+	}
 	return true;
 }
 
@@ -122,7 +126,39 @@ bool Graphics::InitializeShaders() {
 		return false;
 	}
 
-	if (this->pixelShader.Initialize(this->device, shaderFolder + L"PixelShader.cso")) {
+	if (!this->pixelShader.Initialize(this->device, shaderFolder + L"PixelShader.cso")) {
+		return false;
+	}
+
+	return true;
+}
+
+bool Graphics::InitializeScene()
+{
+	Vertex vertexArray[] = { // template
+								Vertex(0.0f, -0.1f),
+								Vertex(-0.1f, 0.0f),
+								Vertex(0.1f, 0.0f),
+								Vertex(0.0f, 0.1f),
+							};
+
+	D3D11_BUFFER_DESC vertexBufferDesc;
+	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
+
+	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	vertexBufferDesc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(vertexArray);
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.CPUAccessFlags = 0;
+	vertexBufferDesc.MiscFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA vertexBufferData;
+	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
+
+	vertexBufferData.pSysMem = vertexArray;
+
+	HRESULT hResult = this->device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, this->vertexBuffer.GetAddressOf());
+	if (FAILED(hResult)) {
+		ErrorLogger::Log(hResult, "Failed to create vertex buffer!");
 		return false;
 	}
 
@@ -130,9 +166,22 @@ bool Graphics::InitializeShaders() {
 }
 
 void Graphics::RenderFrame() {
-	// Test
-	float bgColor[] = {0.0f, 0.0f, 1.0f, 1.0f};
+	float bgColor[] = {0.0f, 0.0f, 0.0f, 1.0f};
 
 	this->deviceContext->ClearRenderTargetView(this->renderTargetWiew.Get(), bgColor);
+	
+	this->deviceContext->IASetInputLayout(this->vertexShader.GetInputLayout());
+	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	this->deviceContext->VSSetShader(vertexShader.GetShader(), NULL, 0);
+	this->deviceContext->PSSetShader(pixelShader.GetShader(), NULL, 0);
+
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+
+	this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
+
+	this->deviceContext->Draw(4, 0);
+
 	this->swapChain->Present(1, NULL);
 }
