@@ -82,10 +82,24 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int heigth) {
 
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
-	viewport.Width    = width;
-	viewport.Height   = heigth;
+	viewport.Width    = static_cast<float> (width);
+	viewport.Height   = static_cast<float> (heigth);
 
 	this->deviceContext->RSSetViewports(1, &viewport);
+
+	D3D11_RASTERIZER_DESC rasterizerDescription;
+
+	ZeroMemory(&rasterizerDescription, sizeof(D3D11_RASTERIZER_DESC));
+
+	rasterizerDescription.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
+	rasterizerDescription.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
+	rasterizerDescription.FrontCounterClockwise = TRUE;
+
+	hResult = this->device->CreateRasterizerState(&rasterizerDescription, this->rasterizerState.GetAddressOf());
+	if (FAILED(hResult)) {
+		ErrorLogger::Log(hResult, "Failed to create rasterizer state!");
+		return false;
+	}
 
 	return true;
 }
@@ -117,6 +131,13 @@ bool Graphics::InitializeShaders() {
 											 0,
 											 0,
 											 D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+											 0},
+											{"COLOR",
+											 0,
+											 DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+											 0,
+											 D3D11_APPEND_ALIGNED_ELEMENT,
+											 D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
 											 0}
 										};
 
@@ -136,10 +157,9 @@ bool Graphics::InitializeShaders() {
 bool Graphics::InitializeScene()
 {
 	Vertex vertexArray[] = { // template
-								Vertex(0.0f, -0.1f),
-								Vertex(-0.1f, 0.0f),
-								Vertex(0.1f, 0.0f),
-								Vertex(0.0f, 0.1f),
+								Vertex(-1.0f, -1.0f, 1.0f, 0.0f, 0.0f),
+								Vertex(0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
+								Vertex(1.0f, -1.0f, 0.0f, 1.0f, 0.0f),
 							};
 
 	D3D11_BUFFER_DESC vertexBufferDesc;
@@ -172,6 +192,7 @@ void Graphics::RenderFrame() {
 	
 	this->deviceContext->IASetInputLayout(this->vertexShader.GetInputLayout());
 	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	this->deviceContext->RSSetState(this->rasterizerState.Get());
 
 	this->deviceContext->VSSetShader(vertexShader.GetShader(), NULL, 0);
 	this->deviceContext->PSSetShader(pixelShader.GetShader(), NULL, 0);

@@ -21,6 +21,7 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetWiew;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
 
 	VertexShader vertexShader;
 	PixelShader pixelShader;
