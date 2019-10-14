@@ -11,14 +11,24 @@ bool RenderWindow::Initialize(WindowContainer* pWindowContainer ,HINSTANCE hInit
 
 	this->RegisterWindowClass();
 
+	int centerScreenX = GetSystemMetrics(SM_CXSCREEN) / 2 - this->width / 2;
+	int centerScreenY = GetSystemMetrics(SM_CYSCREEN) / 2 - this->height / 2;
+
+	RECT windowRectangle;
+	windowRectangle.left = centerScreenX;
+	windowRectangle.top = centerScreenY;
+	windowRectangle.right = windowRectangle.left + this->width;
+	windowRectangle.bottom = windowRectangle.top + this->height;
+	AdjustWindowRect(&windowRectangle, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
+
 	this->handle = CreateWindowEx(0, //Extended Windows style - we are using the default. For other options, see: https://msdn.microsoft.com/en-us/library/windows/desktop/ff700543(v=vs.85).aspx
 								  this->windowClassWide.c_str(), //Window class name
 								  this->windowTitleWide.c_str(), //Window Title
 								  WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, //Windows style - See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632600(v=vs.85).aspx
-								  0, //Window X Position
-								  0, //Window Y Position
-								  this->width, //Window Width
-								  this->height, //Window Height
+								  windowRectangle.left, //Window X Position
+								  windowRectangle.top, //Window Y Position
+								  windowRectangle.right - windowRectangle.left, //Window Width
+								  windowRectangle.bottom - windowRectangle.top, //Window Height
 								  NULL, //Handle to parent of this window. Since this is the first window, it has no parent window.
 								  NULL, //Handle to menu or child window identifier. Can be set to NULL and use menu in WindowClassEx if a menu is desired to be used.
 								  this->hInstance, //Handle to the instance of module to be used with this window
