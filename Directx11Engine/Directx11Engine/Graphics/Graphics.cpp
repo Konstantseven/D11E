@@ -74,7 +74,48 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int heigth) {
 		return false;
 	}
 
-	this->deviceContext->OMSetRenderTargets(1, this->renderTargetWiew.GetAddressOf(), NULL);
+	D3D11_TEXTURE2D_DESC depthStencilDescription;
+
+	ZeroMemory(&depthStencilDescription, sizeof(D3D11_TEXTURE2D_DESC));
+
+	depthStencilDescription.Width = width;
+	depthStencilDescription.Height = heigth;
+	depthStencilDescription.MipLevels = 1;
+	depthStencilDescription.ArraySize = 1;
+	depthStencilDescription.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDescription.SampleDesc.Count = 1;
+	depthStencilDescription.SampleDesc.Quality = 0;
+	depthStencilDescription.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilDescription.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilDescription.CPUAccessFlags = 0;
+	depthStencilDescription.MiscFlags = 0;
+
+	hResult = this->device->CreateTexture2D(&depthStencilDescription, NULL, this->depthStencilBuffer.GetAddressOf());
+	if (FAILED(hResult)) {
+		ErrorLogger::Log(hResult, "Failed to create depth stencil buffer!");
+		return false;
+	}
+
+	hResult = this->device->CreateDepthStencilView(this->depthStencilBuffer.Get(), NULL, this -> depthStencilView.GetAddressOf());
+	if (FAILED(hResult)) {
+		ErrorLogger::Log(hResult, "Failed to create depth stencil view!");
+		return false;
+	}
+	this->deviceContext->OMSetRenderTargets(1, this->renderTargetWiew.GetAddressOf(), this->depthStencilView.Get());
+
+	D3D11_DEPTH_STENCIL_DESC depthStencilDecription;
+
+	ZeroMemory(&depthStencilDecription, sizeof(D3D11_DEPTH_STENCIL_DESC));
+
+	depthStencilDecription.DepthEnable = true;
+	depthStencilDecription.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDecription.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+
+	hResult = this->device->CreateDepthStencilState(&depthStencilDecription, this->depthStencilState.GetAddressOf());
+	if (FAILED(hResult)) {
+		ErrorLogger::Log(hResult, "Failed to create depth stencil state!");
+		return false;
+	}
 
 	D3D11_VIEWPORT viewport;
 
@@ -84,6 +125,8 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int heigth) {
 	viewport.TopLeftY = 0;
 	viewport.Width    = static_cast<float> (width);
 	viewport.Height   = static_cast<float> (heigth);
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
 
 	this->deviceContext->RSSetViewports(1, &viewport);
 
@@ -100,6 +143,9 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int heigth) {
 		ErrorLogger::Log(hResult, "Failed to create rasterizer state!");
 		return false;
 	}
+
+	spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->deviceContext.Get());
+	spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data\\Fonts\\digital_7_fs_16.spritefont");
 
 	return true;
 }
@@ -127,7 +173,7 @@ bool Graphics::InitializeShaders() {
 	D3D11_INPUT_ELEMENT_DESC layout[] = {
 											{"POSITION",
 											 0,
-											 DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
+											 DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
 											 0,
 											 0,
 											 D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
@@ -157,9 +203,9 @@ bool Graphics::InitializeShaders() {
 bool Graphics::InitializeScene()
 {
 	Vertex vertexArray[] = { // template
-								Vertex(-1.0f, -1.0f, 1.0f, 0.0f, 0.0f),
-								Vertex(0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
-								Vertex(1.0f, -1.0f, 0.0f, 1.0f, 0.0f),
+								Vertex(-1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f),
+								Vertex(0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f),
+								Vertex(1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f),
 							};
 
 	D3D11_BUFFER_DESC vertexBufferDesc;
@@ -181,6 +227,30 @@ bool Graphics::InitializeScene()
 		ErrorLogger::Log(hResult, "Failed to create vertex buffer!");
 		return false;
 	}
+	// test triangle
+	Vertex testVertexArray[] = { // template
+								Vertex(-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f),
+								Vertex(0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f),
+								Vertex(0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f),
+	};
+
+	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
+
+	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	vertexBufferDesc.ByteWidth = sizeof(Vertex) * ARRAYSIZE(testVertexArray);
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.CPUAccessFlags = 0;
+	vertexBufferDesc.MiscFlags = 0;
+
+	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
+
+	vertexBufferData.pSysMem = testVertexArray;
+
+	hResult = this->device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, this->vertexBuffer2.GetAddressOf());
+	if (FAILED(hResult)) {
+		ErrorLogger::Log(hResult, "Failed to create vertex buffer!");
+		return false;
+	}
 
 	return true;
 }
@@ -189,20 +259,31 @@ void Graphics::RenderFrame() {
 	float bgColor[] = {0.0f, 0.0f, 0.0f, 1.0f};
 
 	this->deviceContext->ClearRenderTargetView(this->renderTargetWiew.Get(), bgColor);
+	this->deviceContext->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	
 	this->deviceContext->IASetInputLayout(this->vertexShader.GetInputLayout());
 	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	this->deviceContext->RSSetState(this->rasterizerState.Get());
-
+	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
 	this->deviceContext->VSSetShader(vertexShader.GetShader(), NULL, 0);
 	this->deviceContext->PSSetShader(pixelShader.GetShader(), NULL, 0);
 
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 
+	// default triangle
 	this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
 
-	this->deviceContext->Draw(4, 0);
+	this->deviceContext->Draw(3, 0);
+
+	// test triangle
+	this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer2.GetAddressOf(), &stride, &offset);
+
+	this->deviceContext->Draw(3, 0);
+
+	spriteBatch->Begin();
+	spriteFont->DrawString(spriteBatch.get(), L"Hello World", DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	spriteBatch->End();
 
 	this->swapChain->Present(1, NULL);
 }
