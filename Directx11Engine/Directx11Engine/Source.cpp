@@ -1,7 +1,7 @@
 #include "Engine.h"
 
-#define WIDTH 800
-#define HEIGHT 600
+constexpr int WIDTH = 800;
+constexpr int HEIGHT = 600;
 
 int APIENTRY wWinMain( _In_ 	HINSTANCE hInstance,
 					   _In_opt_ HINSTANCE hPrevInstance,

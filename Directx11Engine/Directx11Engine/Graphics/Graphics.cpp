@@ -221,12 +221,9 @@ bool Graphics::InitializeScene()
 {
 	Vertex vertexArray[] = { // template
 								Vertex(-0.5f, -0.5f, 1.0f, 0.0f, 1.0f),
-								Vertex(-0.5f, 0.5f, 1.0f, 0.0f, 0.0f),
-								Vertex(0.5f, 0.5f, 1.0f, 1.0f, 0.0f),
-
-								Vertex(-0.5f, -0.5f, 1.0f, 0.0f, 1.0f),
-								Vertex(0.5f, 0.5f, 1.0f, 1.0f, 0.0f),
-								Vertex(0.5f, -0.5f, 1.0f, 1.0f, 1.0f),
+								Vertex(-0.5f,  0.5f, 1.0f, 0.0f, 0.0f),
+								Vertex( 0.5f,  0.5f, 1.0f, 1.0f, 0.0f),
+								Vertex( 0.5f, -0.5f, 1.0f, 1.0f, 1.0f),
 							};
 
 	HRESULT hResult = this->vertexBuffer.Initialize(this->device.Get(), vertexArray, ARRAYSIZE(vertexArray));
@@ -234,6 +231,19 @@ bool Graphics::InitializeScene()
 		ErrorLogger::Log(hResult, "Failed to create vertex buffer!");
 		return false;
 	}
+
+	DWORD indicies[] = 
+	{
+		0, 1, 2,
+		0, 2, 3
+	};
+
+	hResult = this->indicesBuffer.Initialize(this->device.Get(), indicies, ARRAYSIZE(indicies));
+	if (FAILED(hResult)) {
+		ErrorLogger::Log(hResult, "Failed to create indicies buffer!");
+		return false;
+	}
+
 
 	hResult = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\cat.png", nullptr, this->texture.GetAddressOf());
 	if (FAILED(hResult)) {
@@ -262,8 +272,9 @@ void Graphics::RenderFrame() {
 
 	this->deviceContext->PSSetShaderResources(0, 1, this->texture.GetAddressOf());
 	this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
+	this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-	this->deviceContext->Draw(6, 0);
+	this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
 
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), L"MEME", DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
