@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ConstantBufferTypes.h"
 #include "VideoAdapterReader.h"
+#include "ConstantBuffer.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
 #include "VertexBuffer.h"
@@ -31,7 +31,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
+	ConstantBuffer<CB_VS_VERTEXSHADER> constantBuffer;
 
 	VertexBuffer<Vertex> vertexBuffer;
 	IndexBuffer indicesBuffer;
