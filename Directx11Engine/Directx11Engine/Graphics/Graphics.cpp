@@ -251,6 +251,22 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 
+	D3D11_BUFFER_DESC bufferDescription;
+	ZeroMemory(&bufferDescription, sizeof(D3D11_BUFFER_DESC));
+
+	bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
+	bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDescription.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufferDescription.MiscFlags = 0;
+	bufferDescription.ByteWidth = static_cast<UINT>(sizeof(CB_VS_VERTEXSHADER) + (16 - (sizeof(CB_VS_VERTEXSHADER) % 16)));
+	bufferDescription.StructureByteStride = 0;
+
+	hResult = device->CreateBuffer(&bufferDescription, 0, constantBuffer.GetAddressOf());
+	if (FAILED(hResult)) {
+		ErrorLogger::Log(hResult, "Failed to initialize constant buffer!");
+		return false;
+	}
+
 	return true;
 }
 
@@ -269,6 +285,18 @@ void Graphics::RenderFrame() {
 	this->deviceContext->PSSetShader(pixelShader.GetShader(), NULL, 0);
 
 	UINT offset = 0;
+
+	CB_VS_VERTEXSHADER CB_VS_data;
+	CB_VS_data.xOffset = 0.0f;
+	CB_VS_data.yOffset = 0.5f;
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+
+	HRESULT hResult = this->deviceContext->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	CopyMemory(mappedResource.pData, &CB_VS_data, sizeof(CB_VS_VERTEXSHADER));
+	this->deviceContext->Unmap(constantBuffer.Get(), 0);
+	this->deviceContext->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
 
 	this->deviceContext->PSSetShaderResources(0, 1, this->texture.GetAddressOf());
 	this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
