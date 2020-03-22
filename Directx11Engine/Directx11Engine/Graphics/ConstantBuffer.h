@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ConstantBufferTypes.h"
-#include "..//ErrorLogger.h"
+#include "../Helpers/ErrorLogger.h"
 #include <wrl/client.h>
 #include <d3d11.h>
 

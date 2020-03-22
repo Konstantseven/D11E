@@ -1,4 +1,3 @@
-#include <comdef.h>
 #include "ErrorLogger.h"
 
 void ErrorLogger::Log(std::string message) {

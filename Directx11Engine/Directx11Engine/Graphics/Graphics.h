@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Helpers/Converter.h"
 #include "VideoAdapterReader.h"
 #include "ConstantBuffer.h"
 #include "VertexShader.h"

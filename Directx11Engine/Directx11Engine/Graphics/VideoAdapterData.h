@@ -1,7 +1,7 @@
 #pragma once
 
 #include <d3d11.h>
-#include "../ErrorLogger.h"
+#include "../Helpers/ErrorLogger.h"
 
 class VideoAdapterData 
 {

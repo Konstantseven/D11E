@@ -4,6 +4,5 @@
 
 struct CB_VS_VERTEXSHADER 
 {
-	float xOffset = 0;
-	float yOffset = 0;
+	DirectX::XMMATRIX matrix_dxxmm;
 };

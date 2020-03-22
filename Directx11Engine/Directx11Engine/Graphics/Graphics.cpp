@@ -276,8 +276,8 @@ void Graphics::RenderFrame() {
 
 	UINT offset = 0;
 
-	constantBuffer.data.xOffset = 0.0f;
-	constantBuffer.data.yOffset = 0.5f;
+	this->constantBuffer.data.matrix_dxxmm = DirectX::XMMatrixRotationRollPitchYaw(0.0f, 0.0f, Converter::DegToRad(180));
+	this->constantBuffer.data.matrix_dxxmm = DirectX::XMMatrixTranspose(this->constantBuffer.data.matrix_dxxmm);
 	if (!constantBuffer.ApplyChanges()) {
 		return;
 	}

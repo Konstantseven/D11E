@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "ErrorLogger.h"
+#include "Helpers/ErrorLogger.h"
 
 class WindowContainer;
 

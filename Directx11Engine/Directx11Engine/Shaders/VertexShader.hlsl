@@ -1,7 +1,6 @@
 cbuffer cBuffer : register(b0) 
 {
-	float xOffset;
-	float yOffset;
+	float4x4 matrix_f4x4;
 };
 
 struct VS_INPUT
@@ -19,10 +18,7 @@ struct VS_OUTPUT
 VS_OUTPUT main(VS_INPUT input) {
     VS_OUTPUT output;
 
-	input.inPos.x += xOffset;
-	input.inPos.y += yOffset;
-    
-    output.outPosition = float4(input.inPos, 1.0f);
+    output.outPosition = mul(float4(input.inPos, 1.0f), matrix_f4x4);
     output.outTextCoordinate = input.inTextureCoordinate;
 
     return output;
