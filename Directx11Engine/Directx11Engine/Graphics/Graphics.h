@@ -18,7 +18,10 @@ public:
 	bool Initialize(HWND hwnd, int width, int heigth);
 	void RenderFrame();
 private:
-	bool InitializeDirectX(HWND hwnd, int width, int heigth);
+	int windowWidth;
+	int windowHeight;
+
+	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
 

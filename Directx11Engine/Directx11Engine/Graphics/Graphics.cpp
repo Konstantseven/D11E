@@ -1,7 +1,10 @@
 #include "Graphics.h"
 
-bool Graphics::Initialize(HWND hwnd, int width, int heigth) {	
-	if (!InitializeDirectX(hwnd, width, heigth)) {
+bool Graphics::Initialize(HWND hwnd, int width, int heigth) {
+	this->windowWidth = width;
+	this->windowHeight = heigth;
+
+	if (!InitializeDirectX(hwnd)) {
 		return false;
 	}
 
@@ -15,7 +18,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int heigth) {
 	return true;
 }
 
-bool Graphics::InitializeDirectX(HWND hwnd, int width, int heigth) {
+bool Graphics::InitializeDirectX(HWND hwnd) {
 	std::vector<VideoAdapterData> videoAdapters = VideoAdapterReader::GetVideoAdapters();
 
 	if (videoAdapters.size() < 1) {
@@ -26,8 +29,8 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int heigth) {
 	DXGI_SWAP_CHAIN_DESC swapChainDescription;
 	ZeroMemory(&swapChainDescription, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-	swapChainDescription.BufferDesc.Width = width;
-	swapChainDescription.BufferDesc.Height = heigth;
+	swapChainDescription.BufferDesc.Width = this->windowWidth;
+	swapChainDescription.BufferDesc.Height = this->windowHeight;
 	swapChainDescription.BufferDesc.RefreshRate.Numerator = 75;
 	swapChainDescription.BufferDesc.RefreshRate.Denominator = 1;
 	swapChainDescription.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -78,8 +81,8 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int heigth) {
 
 	ZeroMemory(&depthStencilDescription, sizeof(D3D11_TEXTURE2D_DESC));
 
-	depthStencilDescription.Width = width;
-	depthStencilDescription.Height = heigth;
+	depthStencilDescription.Width = this->windowWidth;
+	depthStencilDescription.Height = this->windowHeight;
 	depthStencilDescription.MipLevels = 1;
 	depthStencilDescription.ArraySize = 1;
 	depthStencilDescription.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -123,8 +126,8 @@ bool Graphics::InitializeDirectX(HWND hwnd, int width, int heigth) {
 
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
-	viewport.Width    = static_cast<float> (width);
-	viewport.Height   = static_cast<float> (heigth);
+	viewport.Width    = static_cast<float> (this->windowWidth);
+	viewport.Height   = static_cast<float> (this->windowHeight);
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
@@ -220,10 +223,10 @@ bool Graphics::InitializeShaders() {
 bool Graphics::InitializeScene()
 {
 	Vertex vertexArray[] = { // template
-								Vertex(-0.5f, -0.5f, 1.0f, 0.0f, 1.0f),
-								Vertex(-0.5f,  0.5f, 1.0f, 0.0f, 0.0f),
-								Vertex( 0.5f,  0.5f, 1.0f, 1.0f, 0.0f),
-								Vertex( 0.5f, -0.5f, 1.0f, 1.0f, 1.0f),
+								Vertex(-0.5f, -0.5f, 0.0f, 0.0f, 1.0f),
+								Vertex(-0.5f,  0.5f, 0.0f, 0.0f, 0.0f),
+								Vertex( 0.5f,  0.5f, 0.0f, 1.0f, 0.0f),
+								Vertex( 0.5f, -0.5f, 0.0f, 1.0f, 1.0f),
 							};
 
 	HRESULT hResult = this->vertexBuffer.Initialize(this->device.Get(), vertexArray, ARRAYSIZE(vertexArray));
@@ -276,7 +279,26 @@ void Graphics::RenderFrame() {
 
 	UINT offset = 0;
 
-	this->constantBuffer.data.matrix_dxxmm = DirectX::XMMatrixRotationRollPitchYaw(0.0f, 0.0f, Converter::DegToRad(180));
+	static DirectX::XMVECTOR eyePosition    = DirectX::XMVectorSet(0.0f, -4.0f, -2.0f, 0.0f);
+	static DirectX::XMVECTOR lookAtPosition = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	static DirectX::XMVECTOR upVector       = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	DirectX::XMFLOAT3 eyePositionDelta_dxxmf3;
+	DirectX::XMStoreFloat3(&eyePositionDelta_dxxmf3, eyePosition);
+	eyePositionDelta_dxxmf3.y += 0.01f;
+	eyePosition = DirectX::XMLoadFloat3(&eyePositionDelta_dxxmf3);
+
+	DirectX::XMMATRIX view_dxxmm = DirectX::XMMatrixLookAtLH(eyePosition, lookAtPosition, upVector);
+
+	static constexpr float nearZ       = 0.1f;
+	static constexpr float farZ        = 1000.0f;
+	static const float     fovRad      = Converter::DegToRad(90.0f);
+	const float            aspectRatio = static_cast<float>(this->windowWidth) / static_cast<float>(this->windowHeight);
+
+	DirectX::XMMATRIX projection_dxxmm = DirectX::XMMatrixPerspectiveFovLH(fovRad, aspectRatio, nearZ, farZ);
+
+	DirectX::XMMATRIX wordMatrix_dxxmm = DirectX::XMMatrixIdentity();
+	this->constantBuffer.data.matrix_dxxmm = wordMatrix_dxxmm * view_dxxmm * projection_dxxmm;
 	this->constantBuffer.data.matrix_dxxmm = DirectX::XMMatrixTranspose(this->constantBuffer.data.matrix_dxxmm);
 	if (!constantBuffer.ApplyChanges()) {
 		return;
