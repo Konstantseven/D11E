@@ -260,6 +260,9 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 
+	camera.SetPosition(0.0f, 0.0f, -2.0f);
+	camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
+
 	return true;
 }
 
@@ -279,27 +282,11 @@ void Graphics::RenderFrame() {
 
 	UINT offset = 0;
 
-	static DirectX::XMVECTOR eyePosition    = DirectX::XMVectorSet(0.0f, -4.0f, -2.0f, 0.0f);
-	static DirectX::XMVECTOR lookAtPosition = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	static DirectX::XMVECTOR upVector       = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	DirectX::XMFLOAT3 eyePositionDelta_dxxmf3;
-	DirectX::XMStoreFloat3(&eyePositionDelta_dxxmf3, eyePosition);
-	eyePositionDelta_dxxmf3.y += 0.01f;
-	eyePosition = DirectX::XMLoadFloat3(&eyePositionDelta_dxxmf3);
-
-	DirectX::XMMATRIX view_dxxmm = DirectX::XMMatrixLookAtLH(eyePosition, lookAtPosition, upVector);
-
-	static constexpr float nearZ       = 0.1f;
-	static constexpr float farZ        = 1000.0f;
-	static const float     fovRad      = Converter::DegToRad(90.0f);
-	const float            aspectRatio = static_cast<float>(this->windowWidth) / static_cast<float>(this->windowHeight);
-
-	DirectX::XMMATRIX projection_dxxmm = DirectX::XMMatrixPerspectiveFovLH(fovRad, aspectRatio, nearZ, farZ);
-
 	DirectX::XMMATRIX wordMatrix_dxxmm = DirectX::XMMatrixIdentity();
-	this->constantBuffer.data.matrix_dxxmm = wordMatrix_dxxmm * view_dxxmm * projection_dxxmm;
+	camera.AdjustRotation(0.0f, 0.0f, 0.01f);
+	this->constantBuffer.data.matrix_dxxmm = wordMatrix_dxxmm * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 	this->constantBuffer.data.matrix_dxxmm = DirectX::XMMatrixTranspose(this->constantBuffer.data.matrix_dxxmm);
+
 	if (!constantBuffer.ApplyChanges()) {
 		return;
 	}

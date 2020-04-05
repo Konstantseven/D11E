@@ -8,6 +8,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Vertex.h"
+#include "Camera.h"
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
 #include <WICTextureLoader.h>
@@ -45,4 +46,6 @@ private:
 
 	VertexShader vertexShader;
 	PixelShader pixelShader;
+
+	Camera camera;
 };
