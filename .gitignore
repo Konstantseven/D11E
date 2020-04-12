@@ -13,3 +13,16 @@
 *.vcxproj.filters
 *.vcxproj.user
 *.sln
+*.exe
+*.suo
+*.db
+*.opendb
+*.ipch
+*.ilk
+*.log
+*.pdb
+*.tlog
+*.vcxproj.CopyComplete
+*.vcxproj.FileListAbsolute.txt
+*.obj
+*.p7s

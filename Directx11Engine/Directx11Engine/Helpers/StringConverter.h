@@ -5,7 +5,12 @@
 class StringConverter
 {
 	StringConverter() = delete;
+	StringConverter(const StringConverter&) = delete;
+	StringConverter& operator=(StringConverter&) = delete;
+
 public:
-	static std::wstring StringToWide(std::string _string);
+	inline static std::wstring StringToWide(const std::string& _string) {
+		return std::wstring(_string.begin(), _string.end());
+	}
 };
 
