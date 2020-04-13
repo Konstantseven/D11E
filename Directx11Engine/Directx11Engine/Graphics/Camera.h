@@ -24,6 +24,7 @@ public:
 	void SetRotation(float x, float y, float z);
 	void AdjustRotation(const DirectX::XMVECTOR& rot);
 	void AdjustRotation(float x, float y, float z);
+	void SetLookAtPosition(DirectX::XMFLOAT3 lookAtPosition);
 
 private:
 	void UpdateViewMatrix();

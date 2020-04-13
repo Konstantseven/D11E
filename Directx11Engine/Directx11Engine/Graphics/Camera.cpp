@@ -104,6 +104,31 @@ void Camera::AdjustRotation(float x, float y, float z) {
 	this->UpdateViewMatrix();
 }
 
+void Camera::SetLookAtPosition(DirectX::XMFLOAT3 lookAtPosition) {
+	if (lookAtPosition.x == this->positionFloat3.x &&
+		lookAtPosition.y == this->positionFloat3.y &&
+		lookAtPosition.z == this->positionFloat3.z) 
+		return;
+
+		lookAtPosition.x = this->positionFloat3.x - lookAtPosition.x;
+		lookAtPosition.y = this->positionFloat3.y - lookAtPosition.y;
+		lookAtPosition.z = this->positionFloat3.z - lookAtPosition.z;
+
+		float pitch = 0.0f;
+		if (lookAtPosition.y != 0.0f) {
+			const float distance = sqrt(pow(lookAtPosition.x, 2) + pow(lookAtPosition.z, 2));
+			pitch = atan(lookAtPosition.y / distance);
+		}
+
+		float yaw = 0.0f;
+		if (lookAtPosition.x != 0.0f) 
+			yaw = atan(lookAtPosition.x / lookAtPosition.z);
+		if (lookAtPosition.z > 0)
+			yaw += DirectX::XM_PI;
+
+		this->SetRotation(pitch, yaw, 0.0f);
+}
+
 void Camera::UpdateViewMatrix()
 {
 	using DirectX::operator+=;
