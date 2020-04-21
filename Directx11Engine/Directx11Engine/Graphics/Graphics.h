@@ -18,6 +18,7 @@ class Graphics
 public:
 	bool Initialize(HWND hwnd, int width, int heigth);
 	void RenderFrame();
+	Camera camera;
 private:
 	int windowWidth;
 	int windowHeight;
@@ -46,6 +47,4 @@ private:
 
 	VertexShader vertexShader;
 	PixelShader pixelShader;
-
-	Camera camera;
 };

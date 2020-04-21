@@ -283,8 +283,6 @@ void Graphics::RenderFrame() {
 	UINT offset = 0;
 
 	DirectX::XMMATRIX wordMatrix_dxxmm = DirectX::XMMatrixIdentity();
-	camera.AdjustPosition(0.01f, 0.0f, 0.0f);
-	camera.SetLookAtPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	this->constantBuffer.data.matrix_dxxmm = wordMatrix_dxxmm * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 	this->constantBuffer.data.matrix_dxxmm = DirectX::XMMatrixTranspose(this->constantBuffer.data.matrix_dxxmm);
 

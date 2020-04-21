@@ -40,6 +40,22 @@ const DirectX::XMFLOAT3& Camera::GetRotationFloat3() const {
 	return this->rotationFloat3;
 }
 
+const DirectX::XMVECTOR& Camera::GetForwardVector() const {
+	return this->forwardVector;
+}
+
+const DirectX::XMVECTOR& Camera::GetRightVector() const {
+	return this->rightVector;
+}
+
+const DirectX::XMVECTOR& Camera::GetBackwardVector() const {
+	return this->backwardVector;
+}
+
+const DirectX::XMVECTOR& Camera::GetLeftVector() const {
+	return this->leftVector;
+}
+
 void Camera::SetPosition(const DirectX::XMVECTOR& position) {
 	DirectX::XMStoreFloat3(&this->positionFloat3, position);
 	this->positionVector = position;
@@ -140,4 +156,10 @@ void Camera::UpdateViewMatrix()
 	DirectX::XMVECTOR upDir = DirectX::XMVector3TransformCoord(this->DEFAULT_UP_VECTOR, cameraRotationMatrix);
 
 	this->viewMatrix = DirectX::XMMatrixLookAtLH(this->positionVector, cameraTarget, upDir);
+
+	DirectX::XMMATRIX vecRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(0.0f, this->rotationFloat3.y, 0.0f);
+	this->forwardVector = XMVector3TransformCoord(this->DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
+	this->backwardVector = XMVector3TransformCoord(this->DEFAULT_BACKWARD_VECTOR, vecRotationMatrix);
+	this->leftVector = XMVector3TransformCoord(this->DEFAULT_LEFT_VECTOR, vecRotationMatrix);
+	this->rightVector = XMVector3TransformCoord(this->DEFAULT_RIGHT_VECTOR, vecRotationMatrix);
 }
