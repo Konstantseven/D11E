@@ -16,5 +16,3 @@ TEST_F(TestStringConverter, TestStringToWide) {
 TEST_F(TestStringConverter, TestStringToWideReturnType) {
 	EXPECT_EQ(typeid(StringConverter::StringToWide(MESSAGE_STRING)), typeid(MESSAGE_WSTRING));
 }
-
-
