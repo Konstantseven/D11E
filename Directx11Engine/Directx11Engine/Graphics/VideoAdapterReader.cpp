@@ -10,7 +10,7 @@ std::vector<VideoAdapterData> VideoAdapterReader::GetVideoAdapters() {
 	Microsoft::WRL::ComPtr<IDXGIFactory> idxgiFactory;
 	HRESULT hResult = CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(idxgiFactory.GetAddressOf()));
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create DXGIFactory for enumerating video adapters!");
+		helpers::error_logger::Log(hResult, "Failed to create DXGIFactory for enumerating video adapters!");
 		exit(-1);
 	}
 

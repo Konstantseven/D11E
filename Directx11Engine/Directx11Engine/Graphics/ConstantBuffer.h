@@ -41,7 +41,7 @@ public:
 
 		HRESULT hResult = this->deviceContext->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		if (FAILED(hResult)) {
-			ErrorLogger::Log(hResult, "Failed to map constant buffer!");
+			helpers::error_logger::Log(hResult, "Failed to map constant buffer!");
 			return false;
 		}
 

@@ -11,7 +11,7 @@ Camera::Camera() {
 }
 
 void Camera::SetProjectionValues(float fovDeg, float aspectRatio, float nearZ, float farZ) {
-	float fovRad = Converter::DegToRad(fovDeg);
+	float fovRad = helpers::converter::DegToRad(fovDeg);
 
 	this->projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fovRad, aspectRatio, nearZ, farZ);
 }

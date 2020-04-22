@@ -5,7 +5,7 @@ bool PixelShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, std::
 	if (FAILED(hResult)) {
 		std::wstring errorMsg = L"Failed to load shader: ";
 		errorMsg += shaderPath;
-		ErrorLogger::Log(hResult, errorMsg);
+		helpers::error_logger::Log(hResult, errorMsg);
 
 		return false;
 	}
@@ -14,7 +14,7 @@ bool PixelShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, std::
 	if (FAILED(hResult)) {
 		std::wstring errorMsg = L"Failed create pixel shader: ";
 		errorMsg += shaderPath;
-		ErrorLogger::Log(hResult, errorMsg);
+		helpers::error_logger::Log(hResult, errorMsg);
 
 		return false;
 	}

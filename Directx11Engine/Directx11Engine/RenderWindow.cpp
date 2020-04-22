@@ -5,9 +5,9 @@ bool RenderWindow::Initialize(WindowContainer* pWindowContainer ,HINSTANCE hInit
 	this->width           = width;
 	this->height          = height;
 	this->windowTitle     = windowTitle;
-	this->windowTitleWide = StringConverter::StringToWide(this->windowTitle);
+	this->windowTitleWide = helpers::converter::StringToWString(this->windowTitle);
 	this->windowClass     = windowClass;
-	this->windowClassWide = StringConverter::StringToWide(this->windowClass);
+	this->windowClassWide = helpers::converter::StringToWString(this->windowClass);
 
 	this->RegisterWindowClass();
 
@@ -35,7 +35,7 @@ bool RenderWindow::Initialize(WindowContainer* pWindowContainer ,HINSTANCE hInit
 								  pWindowContainer); //Param to create window
 
 	if (this->handle == NULL){
-		ErrorLogger::Log(GetLastError(), "CreateWindowsEX Failed for window: " + this->windowTitle);
+		helpers::error_logger::Log(GetLastError(), "CreateWindowsEX Failed for window: " + this->windowTitle);
 		return false;
 	}
 
@@ -99,7 +99,7 @@ LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 			WindowContainer* pWindow = reinterpret_cast<WindowContainer*>(pCreate->lpCreateParams);
 
 			if (pWindow == nullptr) {
-				ErrorLogger::Log("Critical error: Pointer to window container is null during WM_NCREATE!");
+				helpers::error_logger::Log("Critical error: Pointer to window container is null during WM_NCREATE!");
 				exit(-1);
 			}
 

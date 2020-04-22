@@ -22,7 +22,7 @@ bool Graphics::InitializeDirectX(HWND hwnd) {
 	std::vector<VideoAdapterData> videoAdapters = VideoAdapterReader::GetVideoAdapters();
 
 	if (videoAdapters.size() < 1) {
-		ErrorLogger::Log("No IDXGI adapters found!");
+		helpers::error_logger::Log("No IDXGI adapters found!");
 		return false;
 	}
 
@@ -60,20 +60,20 @@ bool Graphics::InitializeDirectX(HWND hwnd) {
 													NULL, // Supported feature level
 													this->deviceContext.GetAddressOf()); //Device context address
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create device and swapchain!");
+		helpers::error_logger::Log(hResult, "Failed to create device and swapchain!");
 		return false;
 	}
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
 	hResult = this->swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create texture buffer!");
+		helpers::error_logger::Log(hResult, "Failed to create texture buffer!");
 		return false;
 	}
 
 	hResult = this->device->CreateRenderTargetView(backBuffer.Get(), NULL, this->renderTargetWiew.GetAddressOf());
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create render target view!");
+		helpers::error_logger::Log(hResult, "Failed to create render target view!");
 		return false;
 	}
 
@@ -95,13 +95,13 @@ bool Graphics::InitializeDirectX(HWND hwnd) {
 
 	hResult = this->device->CreateTexture2D(&depthStencilDescription, NULL, this->depthStencilBuffer.GetAddressOf());
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create depth stencil buffer!");
+		helpers::error_logger::Log(hResult, "Failed to create depth stencil buffer!");
 		return false;
 	}
 
 	hResult = this->device->CreateDepthStencilView(this->depthStencilBuffer.Get(), NULL, this -> depthStencilView.GetAddressOf());
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create depth stencil view!");
+		helpers::error_logger::Log(hResult, "Failed to create depth stencil view!");
 		return false;
 	}
 	this->deviceContext->OMSetRenderTargets(1, this->renderTargetWiew.GetAddressOf(), this->depthStencilView.Get());
@@ -116,7 +116,7 @@ bool Graphics::InitializeDirectX(HWND hwnd) {
 
 	hResult = this->device->CreateDepthStencilState(&depthStencilDecription, this->depthStencilState.GetAddressOf());
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create depth stencil state!");
+		helpers::error_logger::Log(hResult, "Failed to create depth stencil state!");
 		return false;
 	}
 
@@ -143,7 +143,7 @@ bool Graphics::InitializeDirectX(HWND hwnd) {
 
 	hResult = this->device->CreateRasterizerState(&rasterizerDescription, this->rasterizerState.GetAddressOf());
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create rasterizer state!");
+		helpers::error_logger::Log(hResult, "Failed to create rasterizer state!");
 		return false;
 	}
 
@@ -163,7 +163,7 @@ bool Graphics::InitializeDirectX(HWND hwnd) {
 
 	hResult = this->device->CreateSamplerState(&samplerDescription, this->samplerState.GetAddressOf());
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create sampler state!");
+		helpers::error_logger::Log(hResult, "Failed to create sampler state!");
 		return false;
 	}
 
@@ -231,7 +231,7 @@ bool Graphics::InitializeScene()
 
 	HRESULT hResult = this->vertexBuffer.Initialize(this->device.Get(), vertexArray, ARRAYSIZE(vertexArray));
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create vertex buffer!");
+		helpers::error_logger::Log(hResult, "Failed to create vertex buffer!");
 		return false;
 	}
 
@@ -243,20 +243,20 @@ bool Graphics::InitializeScene()
 
 	hResult = this->indicesBuffer.Initialize(this->device.Get(), indicies, ARRAYSIZE(indicies));
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create indicies buffer!");
+		helpers::error_logger::Log(hResult, "Failed to create indicies buffer!");
 		return false;
 	}
 
 
 	hResult = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\cat.png", nullptr, this->texture.GetAddressOf());
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create WIC texture from file!");
+		helpers::error_logger::Log(hResult, "Failed to create WIC texture from file!");
 		return false;
 	}
 
 	hResult = this->constantBuffer.Initialize(this->device.Get(), this->deviceContext.Get());
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to initialize constant buffer!");
+		helpers::error_logger::Log(hResult, "Failed to initialize constant buffer!");
 		return false;
 	}
 

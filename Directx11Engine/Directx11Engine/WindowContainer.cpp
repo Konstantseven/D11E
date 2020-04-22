@@ -12,7 +12,7 @@ WindowContainer::WindowContainer() {
 		rawInputDevice.hwndTarget = 0;
 
 		if (!RegisterRawInputDevices(&rawInputDevice, 1, sizeof(rawInputDevice))) {
-			ErrorLogger::Log(GetLastError(), "Failed to register raw input devices!");
+			helpers::error_logger::Log(GetLastError(), "Failed to register raw input devices!");
 			exit(-1);
 		}
 		rawInputInitialized = true;

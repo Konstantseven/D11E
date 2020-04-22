@@ -5,6 +5,6 @@ VideoAdapterData::VideoAdapterData(IDXGIAdapter* pAdapter) {
 
 	HRESULT hResult = pAdapter->GetDesc(&this->dxgiDescription);
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to get description for the IDXGIAdapter!");
+		helpers::error_logger::Log(hResult, "Failed to get description for the IDXGIAdapter!");
 	}
 }

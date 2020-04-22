@@ -4,20 +4,20 @@ bool VertexShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, std:
 	HRESULT hResult = D3DReadFileToBlob(shaderPath.c_str(), this->shaderBuffer.GetAddressOf());
 	if (FAILED(hResult)) {
 		std::wstring errorMesage = L"Failed to load shader: " + shaderPath;
-		ErrorLogger::Log(hResult, errorMesage);
+		helpers::error_logger::Log(hResult, errorMesage);
 		return false;
 	}
 
 	hResult = device->CreateVertexShader(this->shaderBuffer->GetBufferPointer(), this->shaderBuffer->GetBufferSize(), NULL, this->shader.GetAddressOf());
 	if (FAILED(hResult)) {
 		std::wstring errorMesage = L"Failed to create vertex shader: " + shaderPath;
-		ErrorLogger::Log(hResult, errorMesage);
+		helpers::error_logger::Log(hResult, errorMesage);
 		return false;
 	}
 
 	hResult = device->CreateInputLayout(layoutDescription, numOfElements, this->shaderBuffer->GetBufferPointer(), this->shaderBuffer->GetBufferSize(), this->inputLayout.GetAddressOf());
 	if (FAILED(hResult)) {
-		ErrorLogger::Log(hResult, "Failed to create input layout!");
+		helpers::error_logger::Log(hResult, "Failed to create input layout!");
 	}
 
 	return true;
