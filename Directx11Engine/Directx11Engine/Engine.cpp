@@ -1,6 +1,8 @@
 #include "Engine.h"
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string windowTitle, std::string windowClass, int width, int height) {
+	timer.Start();
+
 	if (!this->renderWindow.Initialize(this, hInstance, windowTitle, windowClass, width, height)) {
 		return false;
 	}
@@ -17,6 +19,9 @@ bool Engine::ProcessMessages() {
 }
 
 void Engine::Update() {
+	double dTime = timer.GetMilisecondsElapsed();
+	timer.Restart();
+
 	while (!keyboard.CharBufferIsEmpty()) {
 		unsigned char _char = keyboard.ReadChar();
 	}
@@ -39,25 +44,25 @@ void Engine::Update() {
 
 	using DirectX::operator*;
 
-	constexpr float CAMERA_MOVEMENT_SPEED_COEF = 0.02f;
+	constexpr float CAMERA_MOVEMENT_SPEED_COEF = 0.002f;
 	// test
 	if (keyboard.KeyIsPressed('W')) {
-		this->grafics.camera.AdjustPosition(this->grafics.camera.GetForwardVector() * CAMERA_MOVEMENT_SPEED_COEF);
+		this->grafics.camera.AdjustPosition(this->grafics.camera.GetForwardVector() * CAMERA_MOVEMENT_SPEED_COEF * dTime);
 	}
 	if (keyboard.KeyIsPressed('S')) {
-		this->grafics.camera.AdjustPosition(this->grafics.camera.GetBackwardVector() * CAMERA_MOVEMENT_SPEED_COEF);
+		this->grafics.camera.AdjustPosition(this->grafics.camera.GetBackwardVector() * CAMERA_MOVEMENT_SPEED_COEF * dTime);
 	}
 	if (keyboard.KeyIsPressed('A')) {
-		this->grafics.camera.AdjustPosition(this->grafics.camera.GetLeftVector() * -CAMERA_MOVEMENT_SPEED_COEF);
+		this->grafics.camera.AdjustPosition(this->grafics.camera.GetLeftVector() * -CAMERA_MOVEMENT_SPEED_COEF * dTime);
 	}
 	if (keyboard.KeyIsPressed('D')) {
-		this->grafics.camera.AdjustPosition(this->grafics.camera.GetRightVector() * CAMERA_MOVEMENT_SPEED_COEF);
+		this->grafics.camera.AdjustPosition(this->grafics.camera.GetRightVector() * CAMERA_MOVEMENT_SPEED_COEF * dTime);
 	}
 	if (keyboard.KeyIsPressed(VK_SPACE)) {
-		this->grafics.camera.AdjustPosition(0.0f, CAMERA_MOVEMENT_SPEED_COEF, 0.0f);
+		this->grafics.camera.AdjustPosition(0.0f, CAMERA_MOVEMENT_SPEED_COEF * dTime, 0.0f);
 	}
 	if (keyboard.KeyIsPressed('C')) {
-		this->grafics.camera.AdjustPosition(0.0f, -CAMERA_MOVEMENT_SPEED_COEF, 0.0f);
+		this->grafics.camera.AdjustPosition(0.0f, -CAMERA_MOVEMENT_SPEED_COEF * dTime, 0.0f);
 	}
 }
 

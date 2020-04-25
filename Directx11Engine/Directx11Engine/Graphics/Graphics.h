@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Helpers/Converter.h"
+#include "../Helpers/Timer.h"
 #include "VideoAdapterReader.h"
 #include "ConstantBuffer.h"
 #include "VertexShader.h"
@@ -47,4 +48,6 @@ private:
 
 	VertexShader vertexShader;
 	PixelShader pixelShader;
+
+	Timer FPSCountTimer;
 };
