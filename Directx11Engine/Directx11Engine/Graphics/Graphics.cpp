@@ -292,7 +292,8 @@ void Graphics::RenderFrame() {
 
 	UINT offset = 0;
 
-	DirectX::XMMATRIX wordMatrix_dxxmm = DirectX::XMMatrixIdentity();
+	static float translationOffset[3] = {0.0f, 0.0f, 0.0f};
+	DirectX::XMMATRIX wordMatrix_dxxmm = DirectX::XMMatrixTranslation(translationOffset[0], translationOffset[1], translationOffset[2]);
 	this->constantBuffer.data.matrix_dxxmm = wordMatrix_dxxmm * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 	this->constantBuffer.data.matrix_dxxmm = DirectX::XMMatrixTranspose(this->constantBuffer.data.matrix_dxxmm);
 
@@ -324,7 +325,8 @@ void Graphics::RenderFrame() {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	ImGui::Begin("Test");
+	ImGui::Begin("Translation");
+	ImGui::DragFloat3(":X/Y/Z", translationOffset, 0.1f, -5.0f, 5.0f);
 	ImGui::End();
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

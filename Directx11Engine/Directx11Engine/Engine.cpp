@@ -34,7 +34,7 @@ void Engine::Update() {
 	constexpr float CAMERA_ROTATION_SPEED_COEF = 0.005f;
 	while (!mouse.EventBufferIsEmpty()) {
 		MouseEvent mEvent = mouse.ReadEvent();
-		if (mouse.IsLeftDown()) {
+		if (mouse.IsRightDown()) {
 			if (mEvent.GetType() == MouseEvent::EventType::RAW_MOVE)
 				this->grafics.camera.AdjustRotation(static_cast<float>(mEvent.GetPosY()) * CAMERA_ROTATION_SPEED_COEF, 
 													static_cast<float>(mEvent.GetPosX()) * CAMERA_ROTATION_SPEED_COEF, 
