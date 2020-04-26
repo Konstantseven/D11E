@@ -17,6 +17,14 @@ bool Graphics::Initialize(HWND hwnd, int width, int heigth) {
 	if (!InitializeScene()) {
 		return false;
 	}
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplWin32_Init(hwnd);
+	ImGui_ImplDX11_Init(this->device.Get(), this->deviceContext.Get());
+	ImGui::StyleColorsDark();
+
 	return true;
 }
 
@@ -312,6 +320,14 @@ void Graphics::RenderFrame() {
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), helpers::converter::StringToWString(FPSString).c_str(), DirectX::XMFLOAT2(0.0f, 1.0f), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->End();
+
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	ImGui::Begin("Test");
+	ImGui::End();
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	this->swapChain->Present(0, NULL);
 }
