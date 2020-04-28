@@ -44,7 +44,7 @@ void Engine::Update() {
 
 	using DirectX::operator*;
 
-	constexpr float CAMERA_MOVEMENT_SPEED_COEF = 0.002f;
+	constexpr double CAMERA_MOVEMENT_SPEED_COEF = 0.002;
 	// test
 	if (keyboard.KeyIsPressed('W')) {
 		this->grafics.camera.AdjustPosition(this->grafics.camera.GetForwardVector() * CAMERA_MOVEMENT_SPEED_COEF * dTime);

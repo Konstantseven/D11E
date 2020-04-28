@@ -40,8 +40,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
-	ConstantBuffer<CB_VS_VERTEXSHADER> constantBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> pinkTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> grassTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> pavementTexture;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> blendState;
+	ConstantBuffer<CB_VS_VERTEXSHADER> CBVSVertexShader;
+	ConstantBuffer<CB_PS_PIXELSHADER> CBPSPixelShader;
 
 	VertexBuffer<Vertex> vertexBuffer;
 	IndexBuffer indicesBuffer;

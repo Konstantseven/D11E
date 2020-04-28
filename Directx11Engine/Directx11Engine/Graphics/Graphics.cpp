@@ -157,6 +157,30 @@ bool Graphics::InitializeDirectX(HWND hwnd) {
 		return false;
 	}
 
+	D3D11_BLEND_DESC blendDescription;
+	ZeroMemory(&blendDescription, sizeof(blendDescription));
+
+	D3D11_RENDER_TARGET_BLEND_DESC RTBDescription;
+	ZeroMemory(&RTBDescription, sizeof(RTBDescription));
+
+	RTBDescription.BlendEnable = true;
+	RTBDescription.SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
+	RTBDescription.DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
+	RTBDescription.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+	RTBDescription.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
+	RTBDescription.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+	RTBDescription.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+	RTBDescription.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	blendDescription.RenderTarget[0] = RTBDescription;
+
+	hResult = this->device->CreateBlendState(&blendDescription, this->blendState.GetAddressOf());
+	if (FAILED(hResult))
+	{
+		helpers::error_logger::Log(hResult, "Failed to create blend state!");
+		return false;
+	}
+
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->deviceContext.Get());
 	spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data\\Fonts\\digital_7_fs_16.spritefont");
 
@@ -258,15 +282,33 @@ bool Graphics::InitializeScene()
 	}
 
 
-	hResult = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\cat.png", nullptr, this->texture.GetAddressOf());
+	hResult = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\seamless_grass.jpg", nullptr, this->grassTexture.GetAddressOf());
 	if (FAILED(hResult)) {
 		helpers::error_logger::Log(hResult, "Failed to create WIC texture from file!");
 		return false;
 	}
 
-	hResult = this->constantBuffer.Initialize(this->device.Get(), this->deviceContext.Get());
+	hResult = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\pinksquare.jpg", nullptr, this->pinkTexture.GetAddressOf());
 	if (FAILED(hResult)) {
-		helpers::error_logger::Log(hResult, "Failed to initialize constant buffer!");
+		helpers::error_logger::Log(hResult, "Failed to create WIC texture from file!");
+		return false;
+	}
+
+	hResult = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\seamless_pavement.jpg", nullptr, this->pavementTexture.GetAddressOf());
+	if (FAILED(hResult)) {
+		helpers::error_logger::Log(hResult, "Failed to create WIC texture from file!");
+		return false;
+	}
+
+	hResult = this->CBVSVertexShader.Initialize(this->device.Get(), this->deviceContext.Get());
+	if (FAILED(hResult)) {
+		helpers::error_logger::Log(hResult, "Failed to initialize constant buffer of vertex shaders!");
+		return false;
+	}
+
+	hResult = this->CBPSPixelShader.Initialize(this->device.Get(), this->deviceContext.Get());
+	if (FAILED(hResult)) {
+		helpers::error_logger::Log(hResult, "Failed to initialize constant buffer of pixel shaders!");
 		return false;
 	}
 
@@ -286,27 +328,81 @@ void Graphics::RenderFrame() {
 	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	this->deviceContext->RSSetState(this->rasterizerState.Get());
 	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
+	this->deviceContext->OMSetBlendState(this->blendState.Get(), NULL, 0xffffffff);
 	this->deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
 	this->deviceContext->VSSetShader(vertexShader.GetShader(), NULL, 0);
 	this->deviceContext->PSSetShader(pixelShader.GetShader(), NULL, 0);
 
 	UINT offset = 0;
 
-	static float translationOffset[3] = {0.0f, 0.0f, 0.0f};
-	DirectX::XMMATRIX wordMatrix_dxxmm = DirectX::XMMatrixTranslation(translationOffset[0], translationOffset[1], translationOffset[2]);
-	this->constantBuffer.data.matrix_dxxmm = wordMatrix_dxxmm * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-	this->constantBuffer.data.matrix_dxxmm = DirectX::XMMatrixTranspose(this->constantBuffer.data.matrix_dxxmm);
+	{
+		static float translationOffset[3] = { 0.0f, 0.0f, 4.0f };
+		DirectX::XMMATRIX wordMatrix_dxxmm = DirectX::XMMatrixScaling(5.0f, 5.0f, 5.0f) * DirectX::XMMatrixTranslation(translationOffset[0], translationOffset[1], translationOffset[2]);
+		this->CBVSVertexShader.data.matrix_dxxmm = wordMatrix_dxxmm * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+		this->CBVSVertexShader.data.matrix_dxxmm = DirectX::XMMatrixTranspose(this->CBVSVertexShader.data.matrix_dxxmm);
 
-	if (!constantBuffer.ApplyChanges()) {
-		return;
+		if (!CBVSVertexShader.ApplyChanges())
+			return;
+
+		this->deviceContext->VSSetConstantBuffers(0, 1, CBVSVertexShader.GetAddressOf());
+
+		this->CBPSPixelShader.data.alpha = 1.0f;
+		this->CBPSPixelShader.ApplyChanges();
+
+		this->deviceContext->PSSetConstantBuffers(0, 1, this->CBPSPixelShader.GetAddressOf());
+
+		this->deviceContext->PSSetShaderResources(0, 1, this->pavementTexture.GetAddressOf());
+		this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
+		this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+		this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
 	}
-	this->deviceContext->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
+	{
+		static float translationOffset[3] = { 0.0f, 0.0f, 0.0f };
+		DirectX::XMMATRIX wordMatrix_dxxmm = DirectX::XMMatrixScaling(5.0f, 5.0f, 5.0f) * DirectX::XMMatrixTranslation(translationOffset[0], translationOffset[1], translationOffset[2]);
+		this->CBVSVertexShader.data.matrix_dxxmm = wordMatrix_dxxmm * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+		this->CBVSVertexShader.data.matrix_dxxmm = DirectX::XMMatrixTranspose(this->CBVSVertexShader.data.matrix_dxxmm);
 
-	this->deviceContext->PSSetShaderResources(0, 1, this->texture.GetAddressOf());
-	this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
-	this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+		if (!CBVSVertexShader.ApplyChanges())
+			return;
 
-	this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
+		this->deviceContext->VSSetConstantBuffers(0, 1, CBVSVertexShader.GetAddressOf());
+
+		this->CBPSPixelShader.data.alpha = 1.0f;
+		this->CBPSPixelShader.ApplyChanges();
+
+		this->deviceContext->PSSetConstantBuffers(0, 1, this->CBPSPixelShader.GetAddressOf());
+
+		this->deviceContext->PSSetShaderResources(0, 1, this->grassTexture.GetAddressOf());
+		this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
+		this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+		this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
+	}
+
+	static float alpha = 0.1f;
+	static float translationOffset[3] = { 0.0f, 0.0f, -1.0f };
+	{
+		DirectX::XMMATRIX wordMatrix_dxxmm = DirectX::XMMatrixTranslation(translationOffset[0], translationOffset[1], translationOffset[2]);
+		this->CBVSVertexShader.data.matrix_dxxmm = wordMatrix_dxxmm * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+		this->CBVSVertexShader.data.matrix_dxxmm = DirectX::XMMatrixTranspose(this->CBVSVertexShader.data.matrix_dxxmm);
+
+		if (!CBVSVertexShader.ApplyChanges())
+			return;
+
+		this->deviceContext->VSSetConstantBuffers(0, 1, CBVSVertexShader.GetAddressOf());
+
+		this->CBPSPixelShader.data.alpha = alpha;
+		this->CBPSPixelShader.ApplyChanges();
+
+		this->deviceContext->PSSetConstantBuffers(0, 1, this->CBPSPixelShader.GetAddressOf());
+
+		this->deviceContext->PSSetShaderResources(0, 1, this->pinkTexture.GetAddressOf());
+		this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
+		this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+		this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
+	}
 
 	static int FPSCounter = 0;
 	static std::string FPSString = "FPS: 0";
@@ -326,6 +422,7 @@ void Graphics::RenderFrame() {
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	ImGui::Begin("Translation");
+	ImGui::DragFloat(":Alpha", &alpha, 0.01f, 0.0f, 1.0f);
 	ImGui::DragFloat3(":X/Y/Z", translationOffset, 0.1f, -5.0f, 5.0f);
 	ImGui::End();
 	ImGui::Render();
