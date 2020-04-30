@@ -144,14 +144,24 @@ bool Graphics::InitializeDirectX(HWND hwnd) {
 	this->deviceContext->RSSetViewports(1, &viewport);
 
 	D3D11_RASTERIZER_DESC rasterizerDescription;
-
 	ZeroMemory(&rasterizerDescription, sizeof(D3D11_RASTERIZER_DESC));
 
 	rasterizerDescription.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
-	rasterizerDescription.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
-	rasterizerDescription.FrontCounterClockwise = TRUE;
+	rasterizerDescription.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;
 
 	hResult = this->device->CreateRasterizerState(&rasterizerDescription, this->rasterizerState.GetAddressOf());
+	if (FAILED(hResult)) {
+		helpers::error_logger::Log(hResult, "Failed to create rasterizer state!");
+		return false;
+	}
+
+	D3D11_RASTERIZER_DESC rasterizerDescriptionCullFront;
+	ZeroMemory(&rasterizerDescriptionCullFront, sizeof(D3D11_RASTERIZER_DESC));
+
+	rasterizerDescriptionCullFront.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
+	rasterizerDescriptionCullFront.CullMode = D3D11_CULL_MODE::D3D11_CULL_FRONT;
+
+	hResult = this->device->CreateRasterizerState(&rasterizerDescriptionCullFront, this->rasterizerStateCullFront.GetAddressOf());
 	if (FAILED(hResult)) {
 		helpers::error_logger::Log(hResult, "Failed to create rasterizer state!");
 		return false;
@@ -256,11 +266,15 @@ bool Graphics::InitializeShaders() {
 
 bool Graphics::InitializeScene()
 {
-	Vertex vertexArray[] = { // template
-								Vertex(-0.5f, -0.5f, 0.0f, 0.0f, 1.0f),
-								Vertex(-0.5f,  0.5f, 0.0f, 0.0f, 0.0f),
-								Vertex( 0.5f,  0.5f, 0.0f, 1.0f, 0.0f),
-								Vertex( 0.5f, -0.5f, 0.0f, 1.0f, 1.0f),
+	Vertex vertexArray[] = {
+		Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f), //FRONT Bottom Left  - [0]
+		Vertex(-0.5f,  0.5f, -0.5f, 0.0f, 0.0f), //FRONT Top Left     - [1]
+		Vertex(	0.5f,  0.5f, -0.5f, 1.0f, 0.0f), //FRONT Top Right    - [2]
+		Vertex(	0.5f, -0.5f, -0.5f, 1.0f, 1.0f), //FRONT Bottom Right - [3]
+		Vertex(-0.5f, -0.5f,  0.5f, 0.0f, 1.0f), //BACK Bottom Left   - [4]
+		Vertex(-0.5f,  0.5f,  0.5f, 0.0f, 0.0f), //BACK Top Left      - [5]
+		Vertex(	0.5f,  0.5f,  0.5f, 1.0f, 0.0f), //BACK Top Right     - [6]
+		Vertex(	0.5f, -0.5f,  0.5f, 1.0f, 1.0f), //BACK Bottom Right  - [7]
 							};
 
 	HRESULT hResult = this->vertexBuffer.Initialize(this->device.Get(), vertexArray, ARRAYSIZE(vertexArray));
@@ -271,8 +285,18 @@ bool Graphics::InitializeScene()
 
 	DWORD indicies[] = 
 	{
-		0, 1, 2,
-		0, 2, 3
+		0, 1, 2, //FRONT
+		0, 2, 3, //FRONT
+		4, 7, 6, //BACK 
+		4, 6, 5, //BACK
+		3, 2, 6, //RIGHT SIDE
+		3, 6, 7, //RIGHT SIDE
+		4, 5, 1, //LEFT SIDE
+		4, 1, 0, //LEFT SIDE
+		1, 5, 6, //TOP
+		1, 6, 2, //TOP
+		0, 3, 7, //BOTTOM
+		0, 7, 4, //BOTTOM
 	};
 
 	hResult = this->indicesBuffer.Initialize(this->device.Get(), indicies, ARRAYSIZE(indicies));
@@ -335,51 +359,6 @@ void Graphics::RenderFrame() {
 
 	UINT offset = 0;
 
-	{
-		static float translationOffset[3] = { 0.0f, 0.0f, 4.0f };
-		DirectX::XMMATRIX wordMatrix_dxxmm = DirectX::XMMatrixScaling(5.0f, 5.0f, 5.0f) * DirectX::XMMatrixTranslation(translationOffset[0], translationOffset[1], translationOffset[2]);
-		this->CBVSVertexShader.data.matrix_dxxmm = wordMatrix_dxxmm * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-		this->CBVSVertexShader.data.matrix_dxxmm = DirectX::XMMatrixTranspose(this->CBVSVertexShader.data.matrix_dxxmm);
-
-		if (!CBVSVertexShader.ApplyChanges())
-			return;
-
-		this->deviceContext->VSSetConstantBuffers(0, 1, CBVSVertexShader.GetAddressOf());
-
-		this->CBPSPixelShader.data.alpha = 1.0f;
-		this->CBPSPixelShader.ApplyChanges();
-
-		this->deviceContext->PSSetConstantBuffers(0, 1, this->CBPSPixelShader.GetAddressOf());
-
-		this->deviceContext->PSSetShaderResources(0, 1, this->pavementTexture.GetAddressOf());
-		this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
-		this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-
-		this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
-	}
-	{
-		static float translationOffset[3] = { 0.0f, 0.0f, 0.0f };
-		DirectX::XMMATRIX wordMatrix_dxxmm = DirectX::XMMatrixScaling(5.0f, 5.0f, 5.0f) * DirectX::XMMatrixTranslation(translationOffset[0], translationOffset[1], translationOffset[2]);
-		this->CBVSVertexShader.data.matrix_dxxmm = wordMatrix_dxxmm * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-		this->CBVSVertexShader.data.matrix_dxxmm = DirectX::XMMatrixTranspose(this->CBVSVertexShader.data.matrix_dxxmm);
-
-		if (!CBVSVertexShader.ApplyChanges())
-			return;
-
-		this->deviceContext->VSSetConstantBuffers(0, 1, CBVSVertexShader.GetAddressOf());
-
-		this->CBPSPixelShader.data.alpha = 1.0f;
-		this->CBPSPixelShader.ApplyChanges();
-
-		this->deviceContext->PSSetConstantBuffers(0, 1, this->CBPSPixelShader.GetAddressOf());
-
-		this->deviceContext->PSSetShaderResources(0, 1, this->grassTexture.GetAddressOf());
-		this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
-		this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-
-		this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
-	}
-
 	static float alpha = 0.1f;
 	static float translationOffset[3] = { 0.0f, 0.0f, -1.0f };
 	{
@@ -397,10 +376,12 @@ void Graphics::RenderFrame() {
 
 		this->deviceContext->PSSetConstantBuffers(0, 1, this->CBPSPixelShader.GetAddressOf());
 
-		this->deviceContext->PSSetShaderResources(0, 1, this->pinkTexture.GetAddressOf());
+		this->deviceContext->PSSetShaderResources(0, 1, this->pavementTexture.GetAddressOf());
 		this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
 		this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-
+		this->deviceContext->RSSetState(this->rasterizerStateCullFront.Get());
+		this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
+		this->deviceContext->RSSetState(this->rasterizerState.Get());
 		this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
 	}
 
