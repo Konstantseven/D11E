@@ -32,7 +32,7 @@ void Engine::Update() {
 	}
 
 	constexpr float CAMERA_ROTATION_SPEED_COEF = 0.005f;
-	while (!mouse.EventBufferIsEmpty()) {
+	while (!mouse.IsEventBufferEmpty()) {
 		MouseEvent mEvent = mouse.ReadEvent();
 		if (mouse.IsRightDown()) {
 			if (mEvent.GetType() == MouseEvent::EventType::RAW_MOVE)
