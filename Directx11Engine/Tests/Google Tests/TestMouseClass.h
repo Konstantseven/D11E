@@ -2,6 +2,9 @@
 
 #include "gtest/gtest.h"
 #include <Mouse/MouseClass.h>
+#include <vector>
+#include <utility>
+#include <functional>
 
 using MouseEventType = MouseEvent::EventType;
 
@@ -145,6 +148,86 @@ TEST_F(TestMouseClass, TestOnMiddleReleased) {
 	const MouseEventType EXPECTED_ME_TYPE = MouseEventType::MRelease;
 
 	mouse.OnMiddleReleased(X, Y);
+
+	EXPECT_EQ(mouse.IsLeftDown(), false);
+	EXPECT_EQ(mouse.IsMiddleDown(), false);
+	EXPECT_EQ(mouse.IsRightDown(), false);
+
+	EXPECT_EQ(mouse.IsEventBufferEmpty(), false);
+
+	MouseEvent mouseEvent = mouse.ReadEvent();
+	EXPECT_EQ(mouseEvent.GetType(), EXPECTED_ME_TYPE);
+	EXPECT_EQ(mouseEvent.GetPosX(), X);
+	EXPECT_EQ(mouseEvent.GetPosY(), Y);
+	EXPECT_EQ(mouseEvent.GetPos(), M_POINT);
+
+	EXPECT_EQ(mouse.IsEventBufferEmpty(), true);
+}
+
+TEST_F(TestMouseClass, TestOnWheelUp) {
+	const MouseEventType EXPECTED_ME_TYPE = MouseEventType::WheelUp;
+
+	mouse.OnWheelUp(X, Y);
+
+	EXPECT_EQ(mouse.IsLeftDown(), false);
+	EXPECT_EQ(mouse.IsMiddleDown(), false);
+	EXPECT_EQ(mouse.IsRightDown(), false);
+
+	EXPECT_EQ(mouse.IsEventBufferEmpty(), false);
+
+	MouseEvent mouseEvent = mouse.ReadEvent();
+	EXPECT_EQ(mouseEvent.GetType(), EXPECTED_ME_TYPE);
+	EXPECT_EQ(mouseEvent.GetPosX(), X);
+	EXPECT_EQ(mouseEvent.GetPosY(), Y);
+	EXPECT_EQ(mouseEvent.GetPos(), M_POINT);
+
+	EXPECT_EQ(mouse.IsEventBufferEmpty(), true);
+}
+
+TEST_F(TestMouseClass, TestOnWheelDown) {
+	const MouseEventType EXPECTED_ME_TYPE = MouseEventType::WheelDown;
+
+	mouse.OnWheelDown(X, Y);
+
+	EXPECT_EQ(mouse.IsLeftDown(), false);
+	EXPECT_EQ(mouse.IsMiddleDown(), false);
+	EXPECT_EQ(mouse.IsRightDown(), false);
+
+	EXPECT_EQ(mouse.IsEventBufferEmpty(), false);
+
+	MouseEvent mouseEvent = mouse.ReadEvent();
+	EXPECT_EQ(mouseEvent.GetType(), EXPECTED_ME_TYPE);
+	EXPECT_EQ(mouseEvent.GetPosX(), X);
+	EXPECT_EQ(mouseEvent.GetPosY(), Y);
+	EXPECT_EQ(mouseEvent.GetPos(), M_POINT);
+
+	EXPECT_EQ(mouse.IsEventBufferEmpty(), true);
+}
+
+TEST_F(TestMouseClass, TestOnMouseMove) {
+	const MouseEventType EXPECTED_ME_TYPE = MouseEventType::Move;
+
+	mouse.OnMouseMove(X, Y);
+
+	EXPECT_EQ(mouse.IsLeftDown(), false);
+	EXPECT_EQ(mouse.IsMiddleDown(), false);
+	EXPECT_EQ(mouse.IsRightDown(), false);
+
+	EXPECT_EQ(mouse.IsEventBufferEmpty(), false);
+
+	MouseEvent mouseEvent = mouse.ReadEvent();
+	EXPECT_EQ(mouseEvent.GetType(), EXPECTED_ME_TYPE);
+	EXPECT_EQ(mouseEvent.GetPosX(), X);
+	EXPECT_EQ(mouseEvent.GetPosY(), Y);
+	EXPECT_EQ(mouseEvent.GetPos(), M_POINT);
+
+	EXPECT_EQ(mouse.IsEventBufferEmpty(), true);
+}
+
+TEST_F(TestMouseClass, TestOnMouseMoveRaw) {
+	const MouseEventType EXPECTED_ME_TYPE = MouseEventType::RAW_MOVE;
+
+	mouse.OnMouseMove(X, Y);
 
 	EXPECT_EQ(mouse.IsLeftDown(), false);
 	EXPECT_EQ(mouse.IsMiddleDown(), false);
