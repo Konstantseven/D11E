@@ -3,13 +3,10 @@
 #include "../Helpers/Converter.h"
 #include "../Helpers/Timer.h"
 #include "VideoAdapterReader.h"
-#include "ConstantBuffer.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "Vertex.h"
 #include "Camera.h"
+#include "Model.h"
 #include <ImGUI/imgui.h>
 #include <ImGUI/imgui_impl_win32.h>
 #include <ImGUI/imgui_impl_dx11.h>
@@ -48,8 +45,7 @@ private:
 	ConstantBuffer<CB_VS_VERTEXSHADER> CBVSVertexShader;
 	ConstantBuffer<CB_PS_PIXELSHADER> CBPSPixelShader;
 
-	VertexBuffer<Vertex> vertexBuffer;
-	IndexBuffer indicesBuffer;
+	Model model;
 
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;
