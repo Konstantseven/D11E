@@ -8,7 +8,7 @@ namespace helpers
 {
 	namespace error_logger
 	{
-		int Log(::std::string message) noexcept;
+		int Log(std::string message) noexcept;
 		int Log(HRESULT hResult, std::string message) noexcept;
 		int Log(HRESULT hResult, std::wstring message) noexcept;
 	}

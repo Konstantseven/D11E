@@ -1,4 +1,5 @@
 #pragma once
 
-#include "TestStringConverter.h"
+#include "TestHelpersConverter.h"
 #include "TestMouseClass.h"
+#include "TestKeyboardClass.h"

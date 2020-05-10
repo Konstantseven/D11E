@@ -6,7 +6,8 @@
 
 namespace hcon = helpers::converter;
 
-class TestConverter : public testing::Test {
+class TestConverter : public testing::Test 
+{
 protected:
 	const std::string  MESSAGE_STRING  = "Default Message";
 	const std::wstring MESSAGE_WSTRING = L"Default Message";

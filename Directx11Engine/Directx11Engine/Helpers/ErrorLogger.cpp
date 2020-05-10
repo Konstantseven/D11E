@@ -1,7 +1,7 @@
 #include "ErrorLogger.h"
 
-int helpers::error_logger::Log(::std::string message) noexcept {
-	const ::std::string errorMessage = "Error: " + message;
+int helpers::error_logger::Log(std::string message) noexcept {
+	const std::string errorMessage = "Error: " + message;
 	return MessageBoxA(NULL, errorMessage.c_str(), "Error", MB_ICONERROR);
 }
 

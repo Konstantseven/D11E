@@ -7,24 +7,28 @@ Timer::Timer() {
 
 void Timer::Restart() {
 	isRunning = true;
+
 	start = std::chrono::high_resolution_clock::now();
+	stop = std::chrono::high_resolution_clock::now();
 }
 
 bool Timer::Stop() {
-	if (!isRunning) {
-		return false;
-	} else {
+	if (isRunning) {
 		isRunning = false;
 		stop = std::chrono::high_resolution_clock::now();
+
 		return true;
 	}
+
+	return false;
 }
 
 bool Timer::Start() {
-	if (isRunning) {
-		return false;
-	} else{
+	if (!isRunning) {
 		Restart();
+
 		return true;
 	}
+
+	return false;
 }

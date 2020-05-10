@@ -8,7 +8,8 @@
 
 using MouseEventType = MouseEvent::EventType;
 
-class TestMouseClass : public testing::Test {
+class TestMouseClass : public testing::Test 
+{
 protected:
 	MouseEvent mouseEvent;
 	MouseClass mouse;
@@ -227,7 +228,7 @@ TEST_F(TestMouseClass, TestOnMouseMove) {
 TEST_F(TestMouseClass, TestOnMouseMoveRaw) {
 	const MouseEventType EXPECTED_ME_TYPE = MouseEventType::RAW_MOVE;
 
-	mouse.OnMouseMove(X, Y);
+	mouse.OnMouseMoveRaw(X, Y);
 
 	EXPECT_EQ(mouse.IsLeftDown(), false);
 	EXPECT_EQ(mouse.IsMiddleDown(), false);
