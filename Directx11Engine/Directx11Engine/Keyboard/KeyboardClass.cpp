@@ -1,79 +1,61 @@
 #include "KeyboardClass.h"
 
 KeyboardClass::KeyboardClass() {
-	for (int i = 0; i < 256; ++i) {
-		this->keyStates[i] = false;
-	}
-}
+	autoRepeatKeys  = false;
+	autoRepeatChars = false;
 
-bool KeyboardClass::KeyIsPressed(const unsigned char keycode) const {
-	return this->keyStates[keycode];
-}
-
-bool KeyboardClass::KeyBufferIsEmpty() const {
-	return this->keyBuffer.empty();
-}
-
-bool KeyboardClass::CharBufferIsEmpty() const {
-	return this->charBuffer.empty();
+	for (auto& keyState : keyStates)
+		keyState = false;
 }
 
 KeyboardEvent KeyboardClass::ReadKey() {
-	if (this->keyBuffer.empty()) {
-		return KeyboardEvent();
-	}
-	else {
-		KeyboardEvent event = this->keyBuffer.front();
-		this->keyBuffer.pop();
+	if (!keyBuffer.empty()) {
+		KeyboardEvent event = keyBuffer.front();
+		keyBuffer.pop();
+
 		return event;
 	}
+
+	return KeyboardEvent();
+
 }
 
 unsigned char KeyboardClass::ReadChar() {
-	if (this->charBuffer.empty()) {
-		return 0u;
-	}
-	else {
-		unsigned char event = this->charBuffer.front();
-		this->charBuffer.pop();
+	if (!charBuffer.empty()) {
+		unsigned char event = charBuffer.front();
+		charBuffer.pop();
 		return event;
 	}
+
+	return 0u;
 }
 
 void KeyboardClass::OnKeyPressed(const unsigned char key) {
-	this->keyStates[key] = true;
-	this->keyBuffer.push(KeyboardEvent(KeyboardEvent::EventType::Press, key));
+	keyStates[key] = true;
+	keyBuffer.push(KeyboardEvent(KeyboardEvent::EventType::Press, key));
 }
 
 void KeyboardClass::OnKeyReleased(const unsigned char key) {
-	this->keyStates[key] = false;
-	this->keyBuffer.push(KeyboardEvent(KeyboardEvent::EventType::Release, key));
+	keyStates[key] = false;
+	keyBuffer.push(KeyboardEvent(KeyboardEvent::EventType::Release, key));
 }
 
 void KeyboardClass::OnChar(const unsigned char key) {
-	this->charBuffer.push(key);
+	charBuffer.push(key);
 }
 
 void KeyboardClass::EnableAutoRepeatKeys() {
-	this->autoRepeatKeys = true;
+	autoRepeatKeys = true;
 }
 
 void KeyboardClass::DisableAutoRepeatKeys() {
-	this->autoRepeatKeys = false;
+	autoRepeatKeys = false;
 }
 
 void KeyboardClass::EnableAutoRepeatChars() {
-	this->autoRepeatChars = true;
+	autoRepeatChars = true;
 }
 
 void KeyboardClass::DisableAutoRepeatChars() {
-	this->autoRepeatChars = false;
-}
-
-bool KeyboardClass::IsKeysAutoRepeat() const {
-	return this->autoRepeatKeys;
-}
-
-bool KeyboardClass::IsCharAutoRepeat() const {
-	return this->autoRepeatChars;
+	autoRepeatChars = false;
 }
