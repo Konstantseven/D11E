@@ -244,3 +244,32 @@ TEST_F(TestMouseClass, TestOnMouseMoveRaw) {
 
 	EXPECT_EQ(mouse.IsEventBufferEmpty(), true);
 }
+
+TEST_F(TestMouseClass, TestStressSituation) {
+	const int CLICK_NUMBERS = 5000;
+
+	EXPECT_EQ(mouse.IsEventBufferEmpty(), true);
+
+	for (int i = CLICK_NUMBERS; i > 0; --i) {
+		mouse.OnLeftPressed(X, Y);
+		mouse.OnLeftReleased(X, Y);
+	}
+
+	EXPECT_EQ(mouse.IsEventBufferEmpty(), false);
+
+	for (int i = CLICK_NUMBERS; i > 0; --i) {
+		MouseEvent mouseEvent = mouse.ReadEvent();
+		EXPECT_EQ(mouseEvent.GetType(), MouseEventType::LPress);
+		EXPECT_EQ(mouseEvent.GetPosX(), X);
+		EXPECT_EQ(mouseEvent.GetPosY(), Y);
+		EXPECT_EQ(mouseEvent.GetPos(), M_POINT);
+
+		mouseEvent = mouse.ReadEvent();
+		EXPECT_EQ(mouseEvent.GetType(), MouseEventType::LRelease);
+		EXPECT_EQ(mouseEvent.GetPosX(), X);
+		EXPECT_EQ(mouseEvent.GetPosY(), Y);
+		EXPECT_EQ(mouseEvent.GetPos(), M_POINT);
+	}
+
+	EXPECT_EQ(mouse.IsEventBufferEmpty(), true);
+}
