@@ -28,3 +28,6 @@
 *.obj
 *.p7s
 *.ini
+*.testlog
+*.manifest
+*.testdurations
